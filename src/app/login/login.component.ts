@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DataService } from '../services/data.service';
 
@@ -9,12 +10,16 @@ import { DataService } from '../services/data.service';
 })
 export class LoginComponent implements OnInit {
   //database
+ 
   aim="Your Perfect Banking Parter"
-  accnum="Account Number please"
-  acno=""
-  pswd=""
   
-  constructor(private router:Router,private db:DataService) { }
+
+  loginForm=this.fb.group({
+    acno:['',[Validators.required,Validators.pattern('[0-9]*')]],
+  pswd:['',[Validators.required,Validators.pattern('[0-9a-zA-Z]*')]]
+  })
+  
+  constructor(private router:Router,private db:DataService,private fb:FormBuilder) { }
 
   ngOnInit(): void {
   }
@@ -33,23 +38,22 @@ export class LoginComponent implements OnInit {
   // }
   login()
   {
-    var acno=this.acno
-    var pswd=this.pswd
-   let database=this.db.database
-   if(acno in database)
-   {
-     if(pswd==database[acno]["password"]){
-alert("login successfully")
-this.router.navigateByUrl("dashboard")
-     }
-     else{
-       alert("invalid password")
-     }
+    var acno=this.loginForm.value.acno
+    var pswd=this.loginForm.value.pswd
 
-   }
-   else{
-     alert("User doesn't exist")
-   }
+if(this.loginForm.valid){
+  const result=this.db.login(acno,pswd)
+  if(result)
+  {
+   alert("login successfully")
+   
+   this.router.navigateByUrl("dashboard")
+  }
+}
+else{
+  alert("invalid form")
+}
+  
   }
 // login(a:any,p:any)
 //   {
